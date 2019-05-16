@@ -4,6 +4,7 @@
 namespace msm;
 
 
+use CharlotteDunois\Yasmin\Models\Guild;
 use CharlotteDunois\Yasmin\Models\Message;
 
 class Command
@@ -46,7 +47,7 @@ class Command
         return false;
     }
 
-    public function dispatch($prefix, $params, Message $msg) {
+    public function dispatch($prefix, $params, Message $msg, Guild $guild) {
 
     }
 

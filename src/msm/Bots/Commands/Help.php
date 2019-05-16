@@ -4,6 +4,7 @@
 namespace msm\Bots\Commands;
 
 
+use CharlotteDunois\Yasmin\Models\Guild;
 use CharlotteDunois\Yasmin\Models\Message;
 use msm\Command;
 
@@ -18,7 +19,7 @@ class Help extends Command
         return 'Информация по доступным коммандам';
     }
 
-    public function dispatch($prefix, $params, Message $msg) {
+    public function dispatch($prefix, $params, Message $msg, Guild $guild) {
         $text = "```diff
 %s (%s)
 %s

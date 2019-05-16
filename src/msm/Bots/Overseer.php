@@ -19,6 +19,7 @@ class Overseer extends Bot
 {
     protected $prefixes = [
         '!overseer',
+        '!msm',
         '!надсмотрщик',
     ];
 

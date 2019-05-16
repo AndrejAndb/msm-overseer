@@ -5,11 +5,19 @@ namespace msm;
 
 
 use CharlotteDunois\Yasmin\Client;
+use CharlotteDunois\Yasmin\Models\Guild;
 use CharlotteDunois\Yasmin\Models\Message;
+use CharlotteDunois\Yasmin\Models\TextChannel;
+use DateTime;
 
 class Bot
 {
     protected $prefixes = [];
+
+    /**
+     * @var DateTime
+     */
+    protected $startedTime;
 
     /**
      * @var Client
@@ -18,9 +26,12 @@ class Bot
 
     protected $commandList = [];
 
+    protected $configs =[];
+
     public function __construct($client)
     {
         $this->client = $client;
+        $this->startedTime = new DateTime();
         $this->registerCommands();
     }
 
@@ -61,6 +72,10 @@ class Bot
 
     public function dispatchCommand($params, Message $msg)
     {
+        if(!($msg->channel instanceof TextChannel)) {
+            return;
+        }
+
         $data = explode(' ', $params, 2);
         if(empty($data) || count($data) < 1) {
             return;
@@ -71,10 +86,67 @@ class Bot
         /** @var $command Command */
         foreach($this->commandList as $command) {
             if($command->isApplicable($prefix, $msg)) {
-                $command->dispatch($prefix, $params, $msg);
+                $command->dispatch($prefix, $params, $msg, $msg->channel->getGuild());
                 return;
             }
         }
+    }
+
+    /**
+     * @param Guild $guild
+     * @return GuildConfig
+     */
+    public function getConfig(Guild $guild) {
+        if(!isset($this->configs[$guild->id])) {
+            $this->configs[$guild->id] = new GuildConfig($guild);
+        }
+        return $this->configs[$guild->id];
+    }
+
+    public function isConfigured(Guild $guild) {
+        return $this->getConfig($guild)->isConfigured();
+    }
+
+    public function getStatus(Guild $guild) {
+        $status = true;
+
+        // Bot Checks
+        $botCheck = [];
+        $botCheck[] = 'альфа тест';
+        if(!class_exists('\Redis')) {
+            $botCheck[] = 'php-redis не установлен';
+            $status = false;
+        }
+
+        // Guild Checks
+        $guildCheck = [];
+        if(!$this->isConfigured($guild)) {
+            $guildCheck[] = sprintf('Для Сервера "%s" #%s отсутствует конфигурация. Обратитесь к администратору Бота <andrey@andb.name>',
+                $guild->name, $guild->id);
+            $status = false;
+        }
+
+        // DB check
+        $databaseCheck = $this->getConfig($guild)->getDbConnection()->checkConnection();
+
+
+
+        return [
+            'status' => $status,
+            'known_users'=> 0,
+            'linked_users'=> [
+                'teso' => 0,
+            ],
+            'domain' => gethostname(),
+            'uptime' => $this->startedTime->diff((new DateTime())),
+            'health' => [
+                'guild' => $guildCheck,
+                'bot' => $botCheck,
+                'server' => [],
+                'connection' => [],
+                'database' => $databaseCheck,
+            ],
+        ];
     }
 
     public function checkPrefix($prefix)

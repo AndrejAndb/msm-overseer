@@ -1,6 +1,8 @@
 {
     "require": {
-        "charlottedunois/yasmin": "^0.6.0"
+      "charlottedunois/yasmin": "^0.6.0",
+      "ext-json": "*",
+      "ext-redis": "*"
     },
     "autoload": {
         "psr-4": {

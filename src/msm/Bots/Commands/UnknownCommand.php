@@ -4,6 +4,7 @@
 namespace msm\Bots\Commands;
 
 
+use CharlotteDunois\Yasmin\Models\Guild;
 use msm\Command;
 use CharlotteDunois\Yasmin\Models\Message;
 
@@ -15,7 +16,7 @@ class UnknownCommand extends Command
         return true;
     }
 
-    public function dispatch($prefix, $params, Message $msg) {
+    public function dispatch($prefix, $params, Message $msg, Guild $guild) {
         $msg->channel->send(sprintf("Неизвестная комманда '%s'", $prefix));
     }
 
